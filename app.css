@@ -1,0 +1,128 @@
+/* Atomic CSS */
+.ff-s {
+  font-family: serif;
+}
+.fz-08rem{
+  font-size: 0.8rem;
+}
+.pl-25 {
+  padding-left: 25px;
+}
+
+.bb-5sb {
+  border-bottom: 5px solid black;
+}
+
+.op-1:hover * { 
+  opacity: 1;
+}
+.op-1:hover .pollster text { 
+  opacity: 0.1;
+}
+
+
+/* Buttons */
+[class*="btn-"] {
+  padding-left: 25px;
+}
+[class*="btn-"] span {
+  color: white;
+  background-color: black;
+  padding: 8px 10px 5px 10px;
+}
+
+/* Tooltip */
+.tooltip {
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #aaa;
+  background-color: rgba(250, 250, 250, 0.9);
+}
+.tooltip-line {
+  stroke: dimgrey;
+  stroke-width: 1;
+}
+
+.txt-box {
+  padding: 8px 10px 5px 10px;
+}
+.txt-vi {
+  font-size: 1.5em;
+  color: white;
+  background-color: dimgrey;
+  padding: 5px 10px 1px 10px;
+}
+
+/* SVG */
+.CON    path { stroke: #005789; } 
+.LAB    path { stroke: #E31F26; } 
+.LD     path { stroke: #FFB900; }
+.UKIP   path { stroke: #7D0069; } 
+.SNP    path { stroke: #FCDD03; } 
+.GRN    path { stroke: #33A22B; } 
+.others path { stroke: #B3B3B4; }
+
+.CON    { background-color: #005789; fill: #005789; } 
+.LAB    { background-color: #E31F26; fill: #E31F26; } 
+.LD     { background-color: #FFB900; fill: #FFB900; }
+.UKIP   { background-color: #7D0069; fill: #7D0069; } 
+.SNP    { background-color: #FCDD03; fill: #FCDD03; } 
+.GRN    { background-color: #33A22B; fill: #33A22B; } 
+.others { background-color: #B3B3B4; fill: #B3B3B4; }
+
+path {
+  fill: none;
+}
+
+circle {
+  stroke: transparent;
+  stroke-width: 15;
+}
+
+.average {
+  stroke-width: 6;
+  opacity: 0.5;
+}
+
+.range {
+  opacity: 0.25;
+}
+
+.party .text {
+  font-size: 1rem;
+  font-weight: bold;
+}
+.pollster .text {
+  font-size: 0.8em;   
+  opacity: 0;
+}
+
+.party:hover * {
+  cursor: pointer;
+  opacity: 1; 
+  *z-index: 10;
+}
+
+/* highlight path and circles */
+/*path[class*="pollster"] {*/
+.pollster {
+  stroke-width: 1;
+  opacity: 0.1;
+}
+.pollster:hover {
+  opacity: 1;
+}
+
+/* highlight circle */
+circle:hover {
+  opacity: 1;
+  stroke: #666;
+}
+
+/* specific */
+.axis path,
+.axis line {
+  stroke: grey;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
