@@ -1,7 +1,7 @@
 /* Variables 
 /* ******/
 var dayAvg = 14,
-    dateStr = "01/12/2014",
+    dateStr = "26/11/2014",
     dateEnd = "07/05/2015",
     partyList = ["CON", "LAB", "LD", "UKIP", "GRN"/*, "others"*/], //TODO: match with the raw data
     pGroup1 = ["Lord Ashcroft", "Opinium", "Populus", "YouGov"],
@@ -18,11 +18,11 @@ var w = window,
     w = w.innerWidth || e.clientWidth, //|| g.clientWidth,
     h = w.innerHeight|| e.clientHeight;//|| g.clientHeight;
 
-var margin = {top: 10, right:25, bottom: 35, left: 25},
+var margin = {top: 15, right:15, bottom: 35, left: 15},
     width = w - margin.left - margin.right,
     height = h*2/3,// - margin.bottom,
     viewBox = "0 0 " + w + " " + h,
-    coord = {x: 0, y:55};
+    coord = {x: 0, y: 50};
 /* ************/
 
 
@@ -38,12 +38,11 @@ var parseDate = d3.time.format(dateFormat).parse;
 var x = d3.time.scale().range([0, width]),
     y = d3.scale.linear().range([height, 0]);
 
-/*x.domain([parseDate(dateStr), parseDate(dateEnd)]);
-y.domain([coord.x, coord.y]);*/
+//x.domain([parseDate(dateStr), parseDate(dateEnd)]);
+//y.domain([coord.x, coord.y]);
 
 // Add the svg
-var chart = d3.select("#chart")
-            .append("svg")
+var chart = d3.select("svg")
             //.attr("width", width + margin.left + margin.right)
             //.attr("height", height + margin.bottom)
             //.attr("viewBox", viewBox)
@@ -54,8 +53,8 @@ var chart = d3.select("#chart")
 // Define the axes
 var xAxis = d3.svg.axis().scale(x).orient("bottom")
               .ticks(d3.time.month).tickFormat(d3.time.format("%b")),
-    yAxis = d3.svg.axis().scale(y).orient("left")
-              .ticks(5);//.tickFormat(d3.format(".0%"));
+    yAxis = d3.svg.axis().scale(y).orient("right")
+              .ticks(5).tickSize(width);
 
 // Define the line
 var line = d3.svg.line()
@@ -83,7 +82,7 @@ function responsiveUpdate(){
   chart.attr("width", width + margin.left + margin.right)
        .attr("height", height + margin.bottom);
 }       
-//window.onresize = updateWindow;           
+
 responsiveUpdate();
 d3.select(window).on('resize', responsiveUpdate); 
 /* ************/
@@ -92,7 +91,7 @@ d3.select(window).on('resize', responsiveUpdate);
 /* D3: Drawing
 /* ******/
 
-function drawText(svgObj, key) {
+function drawText(svgObj, key, className) {
   svgObj.append("text")
         //.datum(function(d) { return {key: d[key], value: d.values[0]}; }) //DEBUG: order
         .datum(function(d) { return {key: d[key], value: d.values[d.values.length - 1], party: d.party}; }) //DEBUG: order
@@ -116,131 +115,157 @@ function drawText(svgObj, key) {
         .text(function(d) { return termList[d.key]; });
 }
 
-function drawArea(svgObj) {
-  svgObj.append("polygon")
-        .attr("class", "range")
+function drawPolygon(svgObj, className) {
+  var svg = svgObj.append("polygon")
+        .attr("class", className)
         .attr("points", function(d) { 
-          var ptMax, ptMin;
-          ptMax = d.values.map(function(d) { return [x(d.date), y(d.viMax)].join(","); }).join(" ");
-          ptMin = d.values.map(function(d) { return [x(d.date), y(d.viMin)].join(","); }).reverse().join(" ");
-          return [ptMax, ptMin];
+          var points,
+              yMax, yMin, ptMax, ptMin;
+          
+          // area for avg line and all vi dots
+          ptMax = d.values.map(function(d) { 
+            yMax = (d.viMax > d.vi) ? y(d.viMax) : y(d.vi) - 10;
+            return [x(d.date), yMax].join(","); 
+          }).join(" ");
+          ptMin = d.values.map(function(d) { 
+            yMin = (d.viMin < d.vi) ? y(d.viMin) : y(d.vi) + 10;
+            return [x(d.date), yMin].join(","); 
+          }).reverse().join(" ");
+          /*
+          // area for avg line
+          ptMax = d.values.map(function(d) { return [x(d.date), y(d.vi) - 5].join(","); }).join(" ");
+          ptMin = d.values.map(function(d) { return [x(d.date), y(d.vi) + 5].join(","); }).reverse().join(" ");
+          */
+          //TODO: area for detection
+          // ...
+
+          points = [ptMax, ptMin];
+          return points;
         });
+  return svg;
 }
 
 // Draw average lines for each party
-function drawLineAverage(svgObj) {  
-  svgObj.append("path")
-        .attr("class", "average")
-        .attr("d", function(d) { return line(d.values); })
-        // highlight when hover
-        .on("mouseover", function(d) { this.parentNode.classList.add("op-1"); })
-        .on("mouseout",  function(d) { this.parentNode.classList.remove("op-1"); });
+function drawLine(svgObj, x1, y1, x2, y2, className) {
+  svgObj.append("line")
+        .attr("class", className)
+        .attr("x1", x1) 
+        .attr("y1", y1)
+        .attr("x2", x2)
+        .attr("y2", y2);
 }
 
-// Draw individual lines from pollsters
-function drawLineIndividuals(svgObj) {
+function drawPathWithLines(svgObj, className){
   svgObj.append("path")
+        .attr("class", className) 
         .attr("d", function(d) { return line(d.values); })
-        //TODO: change to svg tooltip
-        .append("title")
-        .text(function(d) { return d.pollster; });
 }
 
-function drawCircles(svgObj) {
-  svgObj.selectAll("circle")
-        .data(function(d) { return d.values; })
-        .enter()
+function drawCircle(svgObj, cx, cy, r, className) {
+  svgObj.append("circle")
+        .attr("class", className)
+        .attr("cx", cx) 
+        .attr("cy", cy)
+        .attr("r", r);
+}
+
+function drawCircles(svgObj, r, className) {
+  var svg;
+  svg = svgObj.selectAll("circle")
+        .data(function(d) { return d.values; }).enter()
         .append("circle")
-        .attr("cx", function(d) { return x(d.date)})
+        .attr("class", className)
+        .attr("cx", function(d) { return x(d.date); })
         .attr("cy", function(d) { return y(d.vi); })
-        .attr("r", 3)
-        .on("mouseover", function(d) {
-          var date = new Date(d.date),
-              dateText = monthNameFormat(date) + " " + date.getDate() + " " + date.getFullYear(),
-              xPos = parseFloat(d3.select(this).attr("cx")) - 65,
-              yPos = parseFloat(d3.select(this).attr("cy")) - 100,
-              xPosEnd = x(parseDate(dateEnd));/*,
-              xPosR = parseFloat(d3.select(this).attr("cx")) + 20,
-              yPosR = parseFloat(d3.select(this).attr("cy")) - 35,
-              xPosT = xPosR + 9,
-              yPosT = yPosR + 3,
-              tp;*/ 
-
-          xPos = (xPos < 0) ? 0 : xPos;
-          xPos = (xPos > (xPosEnd - 100)) ? (xPosEnd - 100 - margin.right) : xPos;
-          
-          // Add line to tooltip
-          svg.append("line")
-             .attr("id", "tooltip-line")
-             .attr("class", "tooltip-line")
-             .attr("x1", xPos + 65) 
-             .attr("y1", yPos + 95)
-             .attr("x2", xPos + 65)
-             .attr("y2", yPos + 100 - 25);
-          /*/ Add tooltip label with svg
-          svg.append("rect")
-             .attr("id", "tp-rect")
-             .attr("x", xPosR).attr("y", yPosR)
-             .attr("width", "7em").attr("height", "4.5em")
-             .attr("fill", "#eee")
-             .attr("opacity", "0.9");
-          tp = svg.append("text")
-                  .attr("id", "tp-text")
-                  //.attr("x", xPosT)
-                  .attr("y", yPosT)
-                  .attr("text-anchor", "left")
-                  .attr("fill", "black");
-          console.log(d.pollster, termList[d.pollster]);
-          tp.append("tspan").attr("x", xPosT).attr("dy", "1.2em").text(termList[d.pollster]);
-          tp.append("tspan").attr("x", xPosT).attr("dy", "1.2em").text(dateText);
-          tp.append("tspan").attr("x", xPosT).attr("dy", "1.2em").text(termList[d.party] + ": " + d.vi);*/
-          
-          // Add tooltip label with foreign Object
-          svg.append("foreignObject")
-             .attr("id", "tooltip")
-             .attr("width", 130)
-             .attr("height", 80)
-             .attr("x", xPos)
-             .attr("y", yPos)
-             .append("xhtml:body")
-             .html(
-               '<div class="tooltip">' + 
-               '<div class="txt-vi ' + d.party + '">' + termList[d.party] + ": " + d.vi + "</div>" + 
-               '<div class="txt-box">' + 
-               termList[d.pollster] + "</br>" +
-               dateText + 
-               '</div>' +
-               "</div>"
-             );
-        })
-        .on("mouseout", function(d) {
-          //svg.select("#tp-rect").remove();
-          //svg.select("#tp-text").remove();
-          svg.select("#tooltip").remove();
-          svg.select("#tooltip-line").remove();
-        });
+        .attr("r", r);
+  return svg;
 }
 
-function drawLineVertical(svgObj) {
-  svgObj.append("rect")
-        .attr("x", function(d) { return x(d.date); })
-        .attr("y", 0)
-        .attr("width", 1)
-        .attr("height", height)
-        .attr("class", "ruler");
-}
+function drawForeignObject (svgObj, w, h, x, y, className, data) {
+  var date = new Date(data.date),
+      dateText = monthNameFormat(date) + " " + date.getDate() + " " + date.getFullYear();
+              
+  svgObj.append("foreignObject")
+        .attr("class", className)
+        .attr("width", w)
+        .attr("height", h)
+        .attr("x", x)
+        .attr("y", y)
+        .append("xhtml:body")
+        .html(
+          '<div class="tp-text">' + 
+          '<div class="tp-text-misc"><b>' + termList[data.pollster] + " Poll</b></br>" + dateText + '</div>' +
+          '<div class="tp-text-vi ' + data.party + '">' + termList[data.party] + ": " + data.vi + "</div>" + 
+          "</div>"
+        );
+} 
 
 function drawCoordinate() {
+  var svgYAxis;
   //Add the X Axis  
   svg.append("g")
      .attr("class", "x axis")
      .attr("transform", "translate(0," + height + ")")
      .call(xAxis);
-
   //Add the Y Axis
-  svg.append("g")
+  svgYAxis = svg.append("g")
      .attr("class", "y axis")
      .call(yAxis);
+  svgYAxis.selectAll("g")
+     .filter(function(d) { return d; })
+     .classed("sc-ddd", true);
+  svgYAxis.selectAll("text")
+     .attr("x", 0)
+     .attr("dy", -3);
+}
+
+function onCircles(svgObj) {
+  svgObj.on("mouseover", function(d) {
+          // 1. Add tooltip
+          var xPos = parseFloat(d3.select(this).attr("cx")),
+              yPos = parseFloat(d3.select(this).attr("cy")),
+              xPosEnd = x(parseDate(dateEnd)),
+              xPosShift = xPos,
+              yPosShift = yPos,
+              xShift = 65;
+
+          if (xPos < xShift) { xPosShift = xShift; }
+          else if (xPos > (xPosEnd - xShift + margin.right)) { xPosShift = xPosEnd - xShift + margin.right; }
+          
+          if (yPos > (y(coord.y) - 120)) { yPosShift = y(coord.y) - 120; }
+          
+          //TODO: use <div> instead of foreign obj, perhaps!?
+          drawLine(svg, xPos, yPos - 8, xPosShift, yPos - 45, "tp-line");
+          drawCircle(svg, xPos, yPos, 9, "tp-circle");
+          drawForeignObject (svg, 160, 80, xPosShift - xShift, yPos - 120, "tp", d);
+          
+          // 2. highlight avg path
+          this.parentNode.classList.add("op-1-pathpolls");
+          d3.select("." + d.party).classed("op-1-path", true);
+        })
+        .on("mouseout", function(d) {
+          // 1. Remove tooltip
+          svg.select(".tp").remove();
+          svg.select(".tp-line").remove();
+          svg.select(".tp-circle").remove();
+          
+          // 2. Remove highlight
+          this.parentNode.classList.remove("op-1-pathpolls");
+          d3.select("." + d.party).classed("op-1-path", false);
+        });
+}
+
+function onPolygon(svgObj) {
+  var ele;
+  svgObj.on("mouseover", function(d) { 
+          ele = document.querySelector(".party-polls." + d.party)
+          ele.classList.add("op-1-polls");
+          this.parentNode.classList.add("op-1-path"); 
+        })
+        .on("mouseout",  function(d) { 
+          ele.classList.remove("op-1-polls");
+          this.parentNode.classList.remove("op-1-path"); 
+        });
 }
 /* ************/
 
@@ -250,7 +275,8 @@ function drawCoordinate() {
 d3.json("data.json", function(error, rawData) {
   
   var data, dataset,
-      svgParty, svgPollster;
+      svgParty, svgPollster, 
+      svgRange, svgVi;
 
   // Make sure data is loaded correctly
   if (error) { console.error("Try refreshing your browser."); return; } 
@@ -266,37 +292,41 @@ d3.json("data.json", function(error, rawData) {
   });
   // Compose data 
   dataset = composeDataByParty(data);
-  //console.log(dataset);
+  console.log(dataset);
 
 
   /* Drawing */
-  svgParty = svg.selectAll("g")
-                .data(dataset)
-                .enter().append("g")            
-                .attr("class", function(d) { return "party " + d.party; });
-
-  // 1. Draw area, path (with lines) - avarage, text
-  //drawArea(svgParty);
-  drawLineAverage(svgParty);
-  drawText(svgParty, "party");
-  
-  svgPollster = svgParty.selectAll("g")
-                        .data(function(d) { return d.pollster; })
-                        .enter()
-                        .append("g")
-                        .attr("class", function(d, index) { return "pollster p" + index;} );
-  
-  // 2. Draw path (with lines) - individuals, text
-  //drawLineIndividuals(svgPollster);
-  //drawText(svgPollster, "pollster");
-  
-  // 3. Draw circle, rect
-  drawCircles(svgPollster);
-  //drawLineVertical(svgCircles);
-  
   // Draw coordinate
   drawCoordinate();
   
+  svgParty = svg.selectAll("party")
+                .data(dataset.date)
+                .enter().append("g")            
+                .attr("class", function(d) { return "party " + d.party; });
+  
+  svgPolls = svg.selectAll("party-polls")
+                .data(dataset.pollster)
+                .enter().append("g")
+                .attr("class", function(d) { return "party-polls " + d.party; })
+                .selectAll("g")
+                .data(function(d) { return d.pollster; })
+                .enter().append("g")
+                .attr("class", function(d, index) { return "pollster p" + index;} );
+
+  // 1. Draw area, path (with lines) - avarage, text
+  drawPathWithLines(svgParty, "path-average")
+  drawText(svgParty, "party", "text-party");
+  
+  svgRange = drawPolygon(svgParty, "polygon-range");
+  onPolygon(svgRange); 
+
+  // 2. Draw path (with lines) - individuals, text
+  drawPathWithLines(svgPolls, "path-polls");
+  //drawText(svgPollster, "pollster");
+  
+  // 3. Draw circle - vi
+  svgVi = drawCircles(svgPolls, 3, "circle-vi");
+  onCircles(svgVi);
 });
 /* ************/
 
@@ -336,9 +366,9 @@ function composeDataByParty(data) {
           vi: d[party]
       }})//end of data.map (values)
   };});//end of partyList.map
-
+  
   // data grouped by date and pollster  
-  dataByPartyDatePollster = dataByParty.map(function(d) {
+  dataByPartyPollster = dataByParty.map(function(d) {
     var datum = d.values;
     
     return {
@@ -358,6 +388,14 @@ function composeDataByParty(data) {
           };
         }) //end of datum.filter (values)
       };}), //end of pollster.map
+  };});
+
+  // data grouped by date and pollster  
+  dataByPartyDate = dataByParty.map(function(d) {
+    var datum = d.values;
+    
+    return {
+      party: d.party,
       
       values: dateList.map(function(date) {
         var viDayList, 
@@ -412,6 +450,9 @@ function composeDataByParty(data) {
       }) //end of dateList.map (values)  
   };}); //end of dataByParty.map
   
-  return dataByPartyDatePollster;
- }
+  return { 
+    date: dataByPartyDate,
+    pollster: dataByPartyPollster
+  }
+}
 /* ************/

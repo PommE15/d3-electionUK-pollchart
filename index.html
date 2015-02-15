@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chart of VI</title>
+    <title>VI</title>
     <link rel="stylesheet" href="app.css">
   </head>
   <body class="ff-s">
 
-    <h1 class="pl-25">
-      <span class="bb-5sb">Trend Chart of VI</span>
+    <h1 class="pl-15">
+      <span class="bb-5sb">The Guardian's Poll of polls</span>
     </h1>
-    
+    <p class="pl-15">Vote intention, %</p>
     <!-- UI controls -->
     <!--div>
     <p>
@@ -45,7 +45,12 @@
     <!-/div-->
 
     <!-- Chart goes here -->
-    <div id="chart"></div>
+    <div id="chart">
+      <svg></svg>
+      <div class="tooltip"></div>      
+    </div>
+
+
     <!--script src="//cdn.jsdelivr.net/ramda/0.9.1/ramda.min.js"></script-->
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="app.js"></script>
