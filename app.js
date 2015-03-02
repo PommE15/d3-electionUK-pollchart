@@ -103,10 +103,10 @@ function setChartSize() {
   xAxis.tickFormat(xAxisTextFormat);
   
   // resize the chart
-  /*d3.select("#pollChart")
+  d3.select("#pollChart")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
-  */
+
 }       
 
 function drawSVG() {
@@ -129,9 +129,16 @@ function drawSVG() {
   eleList[2].className = "";
 }
 
+var to = null;
 function resize() {
-  setChartSize();
-  drawSVG();
+  if (to) {
+    clearTimeout(to);
+    to = null;
+  }
+  to = setTimeout(function() {
+    setChartSize();
+    drawSVG();
+  }, 100);
 }
 
 setChartSize();
@@ -240,7 +247,7 @@ function onRects() {
       for (var i=0; i<nl.length; i++) { nl[i].classList.add("op-0"); }
     });
 
-  /*/ test with hammerjs
+  // test with hammerjs
   var el = document.querySelector(".dates"),
       op = { preventDefault: true },
       hr = new Hammer(el, op),
@@ -275,7 +282,7 @@ function onRects() {
     //console.log(curCN, "end");
     // remove hightlight
     for (var i=0; i<nl.length; i++) { nl[i].classList.add("op-0"); }
-  });*/
+  });
 }
 
 function drawCircle(svgObj, cx, cy, r, className) {
