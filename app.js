@@ -48,83 +48,87 @@ var line = d3.svg.line()
 function setChartSize() {
   // Dimensions of the chart
   var w = window,
-      d = document,
-      e = d.documentElement,
-      p = d.querySelector("#pollChartContainer"),
-      w = e.clientWidth || w.innerWidth,
-      h = e.clientHeight || w.innerHeight,
-      w = w - 10,
-      h = h - 15,
-      str;
+  d = document,
+  e = d.documentElement,
+  p = d.querySelector("#pollChartContainer"),
+  w = e.clientWidth || w.innerWidth,
+  h = e.clientHeight || w.innerHeight,
+  w = w - 10,
+  h = h - 15,
+  str;
 
-width = w - margin.left - margin.right;
-height = h - margin.top - margin.bottom;
+  width = w - margin.left - margin.right;
+  height = h - margin.top - margin.bottom;
 
-//p.setAttribute("width", w);
-//p.setAttribute("height", h);
+  //p.setAttribute("width", w);
+  //p.setAttribute("height", h);
 
-// Ranges of the charts
-x = d3.time.scale().range([0, width]);
-y = d3.scale.linear().range([height, 0]);
+  // Ranges of the charts
+  x = d3.time.scale().range([0, width]);
+  y = d3.scale.linear().range([height, 0]);
 
-// Define the axes
-xAxis = d3.svg.axis().scale(x).orient("bottom")
-.ticks(d3.time.month),  
-yAxis = d3.svg.axis().scale(y).orient("right")
-.ticks(5).tickSize(width)
-.tickFormat(function(d) {
-  return d === 40 ? formatPercent(d / 100) : d ;
-});
+  // Define the axes
+  xAxis = d3.svg.axis().scale(x).orient("bottom")
+  .ticks(d3.time.month),  
+  yAxis = d3.svg.axis().scale(y).orient("right")
+  .ticks(5).tickSize(width)
+  .tickFormat(function(d) {
+    return d === 40 ? formatPercent(d / 100) : d ;
+  });
 
-// for mobile
-if (width < (660 - 10)) {
-  var today = new Date,
-  month = today.getMonth() + 1;
+  // for mobile
+  if (width < (660 - 10)) {
+    var today = new Date,
+    month = today.getMonth() + 1;
 
-  dateStr = "24/11/2014"; 
-  dateEnd = (today.getDate() + 11) + "/" + month + "/" + today.getFullYear();
-  xAxisTextFormat = formatMon;
-} else {
-  dateStr = "20/11/2014";  
-  dateEnd = "15/05/2015";
-  xAxisTextFormat = formatMonth;
-}
+    dateStr = "24/11/2014"; 
+    dateEnd = (today.getDate() + 11) + "/" + month + "/" + today.getFullYear();
+    xAxisTextFormat = formatMon;
+  } else {
+    dateStr = "20/11/2014";  
+    dateEnd = "15/05/2015";
+    xAxisTextFormat = formatMonth;
+  }
 
-// Scale the range of the data
-x.domain([parseDate(dateStr), parseDate(dateEnd)]);
-y.domain([coord.x, coord.y]); 
+  // Scale the range of the data
+  x.domain([parseDate(dateStr), parseDate(dateEnd)]);
+  y.domain([coord.x, coord.y]); 
 
-str = +parseDate(dateStr);
-dayUnit = x(str + dayConst) - x(str);
+  str = +parseDate(dateStr);
+  dayUnit = x(str + dayConst) - x(str);
 
-// xAxis format
-xAxis.tickFormat(xAxisTextFormat);
+  // xAxis format
+  xAxis.tickFormat(xAxisTextFormat);
 
-// resize the chart
-d3.select("#pollChart")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom);
+  // resize the chart
+  d3.select("#pollChart")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom);
 
 }       
 
 function drawSVG() {
   drawCoordinate();  
-  drawText();
-  drawPathWithLines();
-  drawPolygons();
-  drawCircles(gcPoll, 3);
+
   drawCircles(gcDate, 3.5);
   drawRects();
 
-  //TODO: remove hotfix
-  var ele;
-  svg.select(".tp-circle").remove();
-  ele = document.querySelector("#tpTextBox");
-  ele.style.top = "-100px";
-  ele.style.left = "-100px";
-  ele.style.rifht = "auto";
-  eleList = ele.children;
-  eleList[2].className = "";
+  drawText();
+  drawPathWithLines();
+  drawPolygons();
+
+  //drawCircles(gcPoll, 3);
+
+  /*/TODO: remove hotfix
+    var ele;
+    svg.select(".tp-circle").remove();
+    ele = document.querySelector("#tpTextBox");
+    ele.style.top = "-100px";
+    ele.style.left = "-100px";
+    ele.style.rifht = "auto";
+    eleList = ele.children;
+    eleList[2].className = "";
+    */
 }
 
 var to = null;
@@ -215,38 +219,38 @@ function drawPolygons() {
 function onPolygon() {
   var ele;
   ga.on("mouseover", function(d) { 
-      ele = document.querySelector(".party-polls." + d.party);
-      d3.select(ele).classed("op-1-polls", true);
-      d3.select(this.parentNode).classed("op-1-path", true); 
-      }).on("mouseout", function() { 
-        d3.select(ele).classed("op-1-polls", false);
-        d3.select(this.parentNode).classed("op-1-path", false); 
-        });
+    ele = document.querySelector(".party-polls." + d.party);
+    d3.select(ele).classed("op-1-polls", true);
+    d3.select(this.parentNode).classed("op-1-path", true); 
+  }).on("mouseout", function() { 
+    d3.select(ele).classed("op-1-polls", false);
+    d3.select(this.parentNode).classed("op-1-path", false); 
+  });
 }
 
 function addRects(svgObj) {
   gr = svgObj.append("rect")
-    .attr("class", function(d) { return "t" + d; });
+  .attr("class", function(d) { return "t" + d; });
 }
 function drawRects() {
   gr.attr("x", function(d) { return x(d) - (x(d) - x(d - dayConst)) / 2; })
-    .attr("y", 0)
-    .attr("width", function(d) { return (x(d) - x(d - dayConst)); })
-    .attr("height", height); 
+  .attr("y", 0)
+  .attr("width", function(d) { return (x(d) - x(d - dayConst)); })
+  .attr("height", height); 
 }
 function onRects() {
   var nl; //node list
   gr.on("mouseover", function(d) {
-      nl = document.querySelectorAll(".t" + d + ".op-0");
-      for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", false); }
-      var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
-      })
+    nl = document.querySelectorAll(".t" + d + ".op-0");
+    for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", false); }
+    var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
+  })
   .on("mouseout", function(d) {
-      for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); }
-      var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
-      });
+    for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); }
+    var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
+  });
 
-    /*/ pan evnt using hammerjs
+  /*/ pan evnt using hammerjs
     var el = document.querySelector(".dates"),
     op = { preventDefault: true },
     hr = new Hammer(el, op),
@@ -258,237 +262,239 @@ function onRects() {
     hr.get("pan").set({ direction: Hammer.DIRECTION_HORIZONTAL });
 
     hr.on("panstart", function(e) {
-      strCN = e.target.className.baseVal;
-      var s = strCN.slice(1);
-      numCN = parseInt(s);
+    strCN = e.target.className.baseVal;
+    var s = strCN.slice(1);
+    numCN = parseInt(s);
     });
 
     hr.on("panmove", function(e) {
-      var d = Math.round(e.deltaX / dayUnit);
-      curCN = "t" + (numCN + dayConst * d);
-      // if pan position has not change
-      if (preCN === curCN ) { return; } 
-      // remove highlight if any 
-      if (preCN !== null) {
-        for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); } 
-      }
-      // add hightlight
-      nl = document.querySelectorAll("." + curCN + ".op-0");
-      for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", false); }
-      preCN = curCN;
-    });
-
-    hr.on("panend", function(e) {
-      // remove last highlight 
-      for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); }
-    });*/
+    var d = Math.round(e.deltaX / dayUnit);
+    curCN = "t" + (numCN + dayConst * d);
+  // if pan position has not change
+  if (preCN === curCN ) { return; } 
+  // remove highlight if any 
+  if (preCN !== null) {
+  for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); } 
   }
+  // add hightlight
+  nl = document.querySelectorAll("." + curCN + ".op-0");
+  for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", false); }
+  preCN = curCN;
+  });
 
-  function drawCircle(svgObj, cx, cy, r, className) {
-    svgObj.append("circle")
-    .attr("class", className)
-    .attr("cx", cx) 
-    .attr("cy", cy)
-    .attr("r", r);
-  }
+  hr.on("panend", function(e) {
+  // remove last highlight 
+  for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); }
+  });*/
+}
 
-  function addCircles(svgObj, className, key) {
-    var g = svgObj.selectAll("circle")
-    .data(function(d) { return d.values; })
-    .enter().append("circle")
-    //.attr("class", className);
-    .attr("class", function(d) { return "t" + d[key] + " " + className; });
+function drawCircle(svgObj, cx, cy, r, className) {
+  svgObj.append("circle")
+  .attr("class", className)
+  .attr("cx", cx) 
+  .attr("cy", cy)
+  .attr("r", r);
+}
+
+function addCircles(svgObj, className, key) {
+  var g = svgObj.selectAll("circle")
+  .data(function(d) { return d.values; })
+  .enter().append("circle")
+  //.attr("class", className);
+  .attr("class", function(d) { 
+    var cn = (d[key] === undefined) ? className : ("t" + d[key] + " " + className);
+    return cn; });
     return g;
-  }
+}
 
-  function drawCircles(gc, r) {
-    gc.attr("cx", function(d) { return x(d.date) /*+ Math.random()*10*/; })
-    .attr("cy", function(d) { return y(d.vi); })
-    .attr("r", r);
-  }
+function drawCircles(gc, r) {
+  gc.attr("cx", function(d) { return x(d.date) /*+ Math.random()*10*/; })
+  .attr("cy", function(d) { return y(d.vi); })
+  .attr("r", r);
+}
 
-  function onCirclePoll(gc) {
-    var ele, eleList;
+function onCirclePoll(gc) {
+  var ele, eleList;
 
-    gc.on("mouseover", function(d) {
-      // 1. Add tooltip
-      var xPos = parseFloat(d3.select(this).attr("cx")),
-      yPos = parseFloat(d3.select(this).attr("cy")),
-      xPosEnd = x(parseDate(dateEnd)),
-      yShift = 60,
-      date = new Date(d.date),
-      dateText = date.getDate() + " " + formatMonth(date);
+  gc.on("mouseover", function(d) {
+    // 1. Add tooltip
+    var xPos = parseFloat(d3.select(this).attr("cx")),
+    yPos = parseFloat(d3.select(this).attr("cy")),
+    xPosEnd = x(parseDate(dateEnd)),
+    yShift = 60,
+    date = new Date(d.date),
+    dateText = date.getDate() + " " + formatMonth(date);
 
-      //drawLine(svg, xPos, yPos - 8, xPos, yPos - 120, "tp-line");
-      drawCircle(svg, xPos, yPos, 5, "tp-circle");
+    //drawLine(svg, xPos, yPos - 8, xPos, yPos - 120, "tp-line");
+    drawCircle(svg, xPos, yPos, 5, "tp-circle");
 
-      ele = document.querySelector("#tpTextBox");
-      d3.select(ele).classed('d-n', false);
+    ele = document.querySelector("#tpTextBox");
+    d3.select(ele).classed('d-n', false);
 
-      // top or bottom  
-      ele.style.top = ((yPos - yShift) < (-10)) ? ((yPos + yShift) + "px") : ((yPos - yShift) + "px");
-      if (xPos < (xPosEnd - 100)) {
-        // align right
-        ele.style.left = (xPos - 5) + "px";
-        ele.style.right = "auto";
-      } else {
-        // align left
-        ele.style.left = "auto";
-        ele.style.right = (xPosEnd - xPos - 10) + "px";
-      }
+    // top or bottom  
+    ele.style.top = ((yPos - yShift) < (-10)) ? ((yPos + yShift) + "px") : ((yPos - yShift) + "px");
+    if (xPos < (xPosEnd - 100)) {
+      // align right
+      ele.style.left = (xPos - 5) + "px";
+      ele.style.right = "auto";
+    } else {
+      // align left
+      ele.style.left = "auto";
+      ele.style.right = (xPosEnd - xPos - 10) + "px";
+    }
 
-      //TODO: bottom if too height access the iframe
-      eleList = ele.children;
-      eleList[0].textContent = termDic[d.pollster];                 //pollster
-      eleList[1].textContent = dateText;                            //date
-      eleList[2].textContent = termDic[d.party] + " " + d.vi + "%"; //party and vi
-      d3.select(eleList[2]).classed(d.party, true);
+    //TODO: bottom if too height access the iframe
+    eleList = ele.children;
+    eleList[0].textContent = termDic[d.pollster];                 //pollster
+    eleList[1].textContent = dateText;                            //date
+    eleList[2].textContent = termDic[d.party] + " " + d.vi + "%"; //party and vi
+    d3.select(eleList[2]).classed(d.party, true);
 
-      // 2. highlight paths
-      d3.select(this.parentNode).classed("op-1-pathpolls", true);
-      d3.select("." + d.party).classed("op-1-path", true);
-    })
-    .on("mouseout", function(d) {
-      // 1. Remove tooltip
-      //svg.select(".tp-line").remove();
-      svg.select(".tp-circle").remove();
+    // 2. highlight paths
+    d3.select(this.parentNode).classed("op-1-pathpolls", true);
+    d3.select("." + d.party).classed("op-1-path", true);
+  })
+  .on("mouseout", function(d) {
+    // 1. Remove tooltip
+    //svg.select(".tp-line").remove();
+    svg.select(".tp-circle").remove();
 
-      d3.select(ele).classed('d-n', true);
-      d3.select(eleList[2]).classed(d.party, false);
+    d3.select(ele).classed('d-n', true);
+    d3.select(eleList[2]).classed(d.party, false);
 
-      // 2. Remove highlight
-      d3.select(this.parentNode).classed("op-1-pathpolls", false);
-      d3.select("." + d.party).classed("op-1-path", false);
-    });
-  }
+    // 2. Remove highlight
+    d3.select(this.parentNode).classed("op-1-pathpolls", false);
+    d3.select("." + d.party).classed("op-1-path", false);
+  });
+}
 
-  function addText(svgObj, className, key) {
-    gt = svgObj.append("text")
-    //TODO: make sure data order
-    .datum(function(d) { return {key: d[key], value: d.values[d.values.length - 1], party: d.party}; })
-    .attr("class", className);
-  } 
-  function drawText() {
-    gt.attr("text-anchor", "left")
-    .attr("x", function(d){ return x(d.value.date) + 8; })
-    .attr("y", function(d){ return y(d.value.vi) + 6; })
-    .text(function(d) { 
-      var num = (d.value.vi).toFixed(1); 
-      return d.party === "lab" ? num + "%" : num; 
-    });
-  }
+function addText(svgObj, className, key) {
+  gt = svgObj.append("text")
+  //TODO: make sure data order
+  .datum(function(d) { return {key: d[key], value: d.values[d.values.length - 1], party: d.party}; })
+  .attr("class", className);
+} 
+function drawText() {
+  gt.attr("text-anchor", "left")
+  .attr("x", function(d){ return x(d.value.date) + 8; })
+  .attr("y", function(d){ return y(d.value.vi) + 6; })
+  .text(function(d) { 
+    var num = (d.value.vi).toFixed(1); 
+    return d.party === "lab" ? num + "%" : num; 
+  });
+}
 
-  function drawTooltip(data, el, elList) {}
-  function removeTooltip(data, el, elList) {}
+function drawTooltip(data, el, elList) {}
+function removeTooltip(data, el, elList) {}
 
-  /*
-     function drawLine(svgObj, x1, y1, x2, y2, className) {
-     svgObj.append("line")
-     .attr("class", className)
-     .attr("x1", x1) 
-     .attr("y1", y1)
-     .attr("x2", x2)
-     .attr("y2", y2);
+/*
+   function drawLine(svgObj, x1, y1, x2, y2, className) {
+   svgObj.append("line")
+   .attr("class", className)
+   .attr("x1", x1) 
+   .attr("y1", y1)
+   .attr("x2", x2)
+   .attr("y2", y2);
+   }
+
+// old tooltip
+function drawForeignObject (svgObj, w, h, x, y, className, data) {
+var date = new Date(data.date),
+dateText = monthShortNameFormat(date) + " " + date.getDate() + " " + date.getFullYear();
+
+svgObj.append("foreignObject")
+.attr("class", className)
+.attr("width", w)
+.attr("height", h)
+.attr("x", x)
+.attr("y", y)
+.append("xhtml:body")
+.html(
+'<div class="tp-text">' + 
+'<div class="tp-text-misc"><b>' + termDic[data.pollster] + " Poll</b></br>" + dateText + '</div>' +
+'<div class="tp-text-vi ' + data.party + '">' + termDic[data.party] + ": " + data.vi + "</div>" + 
+"</div>"
+);
+} 
+*/
+/* ************/
+
+
+/* D3: Data and Drawing
+/* ******/
+d3.json(/*"data.json"*/jsonSrc, function(error, rawData) {
+
+  var data, dataset,
+  svgParty, svgPolls, svgDates, svgRects,
+  dateList; 
+
+  // Make sure data is loaded correctly
+  if (error) { console.error("Try refreshing your browser."); return; } 
+  else { console.info("Data is good to go!"); }
+
+
+  /* Data */ 
+  data = rawData.sheets["vi-continuous-series"];
+
+
+  /* Data play ground /
+     var vis = [];
+     data.map(function(d, index, arr) {
+     var preDate = "";
+     if (index > 1) {preDate = arr[index-1].date; }
+     if (d.date !== preDate) { 
+     vis = []; 
+     console.log(d.date); 
+     }
+     partyList.forEach(function(p) {
+     if (vis.indexOf(d[p]) === -1) {
+     vis.push(d[p]);
+     console.log("vi:", d[p], vis);
+     } else {
+     console.log("vi:", d[p], vis, "(duplicates)");
      }
 
-  // old tooltip
-  function drawForeignObject (svgObj, w, h, x, y, className, data) {
-  var date = new Date(data.date),
-  dateText = monthShortNameFormat(date) + " " + date.getDate() + " " + date.getFullYear();
-
-  svgObj.append("foreignObject")
-  .attr("class", className)
-  .attr("width", w)
-  .attr("height", h)
-  .attr("x", x)
-  .attr("y", y)
-  .append("xhtml:body")
-  .html(
-  '<div class="tp-text">' + 
-  '<div class="tp-text-misc"><b>' + termDic[data.pollster] + " Poll</b></br>" + dateText + '</div>' +
-  '<div class="tp-text-vi ' + data.party + '">' + termDic[data.party] + ": " + data.vi + "</div>" + 
-  "</div>"
-  );
-  } 
-  */
-  /* ************/
+     })
+     });
+     / End of data play ground */
 
 
-  /* D3: Data and Drawing
-  /* ******/
-  d3.json(/*"data.json"*/jsonSrc, function(error, rawData) {
-
-    var data, dataset,
-    svgParty, svgPolls, svgDates, svgRects,
-    dateList; 
-
-    // Make sure data is loaded correctly
-    if (error) { console.error("Try refreshing your browser."); return; } 
-    else { console.info("Data is good to go!"); }
-
-
-    /* Data */ 
-    data = rawData.sheets["vi-continuous-series"];
-
-
-    /* Data play ground /
-       var vis = [];
-       data.map(function(d, index, arr) {
-       var preDate = "";
-       if (index > 1) {preDate = arr[index-1].date; }
-       if (d.date !== preDate) { 
-       vis = []; 
-       console.log(d.date); 
-       }
-       partyList.forEach(function(p) {
-       if (vis.indexOf(d[p]) === -1) {
-       vis.push(d[p]);
-       console.log("vi:", d[p], vis);
-       } else {
-       console.log("vi:", d[p], vis, "(duplicates)");
-       }
-
-       })
-       });
-       / End of data play ground */
-
-
-    // Parse date
-    data = data.map(function(d) {
+  // Parse date
+  data = data.map(function(d) {
       // + convert a Date object to time in milliseconds
       d.date = +parseDate(d.date); 
       return d;  
-    }).filter(function(d) {
-      return d.date >= (+parseDate(dateStr)); 
-    });
+      }).filter(function(d) {
+        return d.date >= (+parseDate(dateStr)); 
+        });
 
-    // Compose data 
-    var dateList = extractDataByKey(data, "date"),
-    dataset = composeDataByParty(data);
-    //console.log(dataset); 
+  // Compose data 
+  var dateList = extractDataByKey(data, "date"),
+      dataset = composeDataByParty(data);
+  //console.log(dataset); 
 
-    /* Drawing */
-    // 1. Draw coordinate
-    addCoordinate();
-    drawCoordinate();
+  /* Drawing */
+  // 1. Draw coordinate
+  addCoordinate();
+  drawCoordinate();
 
-    svgRects = svg.append("g")
+  svgRects = svg.append("g")
     .attr("class", "dates op-0")
     .selectAll("rect")
     .data(dateList)
     .enter();
 
-    svgParty = svg.selectAll("party")
+  svgParty = svg.selectAll("party")
     .data(dataset.date)
     .enter().append("g")            
     .attr("class", function(d) { return "party " + d.party; });
 
-    svgDates = svg.selectAll("party-dates")
+  svgDates = svg.selectAll("party-dates")
     .data(dataset.date)
     .enter().append("g")            
     .attr("class", function(d) { return "paraty-dates " + d.party; });
 
-    svgPolls = svg.selectAll("party-polls")
+  svgPolls = svg.selectAll("party-polls")
     .data(dataset.pollster)
     .enter().append("g")
     .attr("class", function(d) { return "party-polls " + d.party; })
@@ -497,35 +503,42 @@ function onRects() {
     .enter().append("g")
     .attr("class", function(d, index) { return "pollster p" + index;} );
 
-    // 2. Draw over time view
-    gcDate = addCircles(svgDates, "op-0", "date"); 
-    drawCircles(gcDate, 3.5);
-    addRects(svgRects);
-    drawRects();
-    onRects();
+  // 2. Draw over time view
+  gcDate = addCircles(svgDates, "op-0", "date"); 
+  drawCircles(gcDate, 3.5);
+  addRects(svgRects);
+  drawRects();
+  onRects();
 
-    // 3. Draw area, path (with lines) - avarage, text
-    addText(svgParty, "ff-ss fz-14", "party");
-    drawText();
+  // 3. Draw area, path (with lines) - avarage, text
+  addText(svgParty, "ff-ss fz-14", "party");
+  drawText();
 
-    addPathWithLines(svgParty, "path-avg");
-    drawPathWithLines();
-    addPolygons(svgParty, "polygon-range");
-    drawPolygons(svgParty);
-    onPolygon(); 
+  addPathWithLines(svgParty, "path-avg");
+  drawPathWithLines();
+  addPolygons(svgParty, "polygon-range");
+  drawPolygons(svgParty);
+  onPolygon(); 
 
-    // 4. Draw path (with lines) - individuals, text
-    //drawPathWithLines(svgPolls, "path-polls");
-    //drawText(svgPollster, "pollster");
+  // 4. Draw path (with lines) - individuals, text
+  //drawPathWithLines(svgPolls, "path-polls");
+  //drawText(svgPollster, "pollster");
 
-    // 5. Draw circle - vi
-    gcPoll = addCircles(svgPolls, "circle-poll");
-    drawCircles(gcPoll, 3);
-    onCirclePoll(gcPoll);
+  // 5. Draw circle - vi
+  gcPoll = addCircles(svgPolls, "circle-poll");
+  drawCircles(gcPoll, 3);
+  onCirclePoll(gcPoll);
 
-  });
+  if (navigator.appVersion.indexOf("MSIE") !== -1) {
+    console.log("I'm IE!");
+    window.setTimeout(forceRedraw, 1000);     
+  }     
+});
 /* ************/
 
+function forceRedraw() {
+  drawCircles(gcPoll, 3);
+}
 
 /* Data: Utility functions
 /* ******/
