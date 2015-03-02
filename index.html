@@ -2,56 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--meta name="viewport" content="width=device-width, initial-scale=1"-->
     <title>VI</title>
+    <link rel="stylesheet" href="fonts/fonts.css">
     <link rel="stylesheet" href="app.css">
   </head>
   <body class="ff-s">
 
-    <h1 class="pl-15">
+    <!--h1 class="pl-5">
       <span class="bb-5sb">The Guardian's Poll of polls</span>
-    </h1>
-    <p class="pl-15">Vote intention, %</p>
-    <!-- UI controls -->
-    <!--div>
-    <p>
-      VIEWS:
-      <span>Average Line</span>, 
-      <span>Range Area</span>, 
-      <span>Individual Pollsters Lines</span>, 
-      <span>VI points</span>
-    </p>
-    <p class="btn-party">
-      PARTIES:
-      <span>CON</span> 
-      <span>LAB</span> 
-      <span>UKIP</span> 
-      <span>LD</span>
-      <span>GRN</span>
-    </p->
-    <p class="btn-pollster">
-      POLLSTERS:
-      Show only:
-      <span>ComRes</span> 
-      <span>ICM</span> 
-      <span>Ipsos</span> 
-      <span>TNS</span> 
-      <span>Survation</span> 
-      <span>Lord Ashcroft</span> 
-      <span>Opinium</span> 
-      <span>Populus</span> 
-      <span>YouGov</span> 
-    </p>
-    <!-/div-->
+    </h1-->
+
+    <!-- UI controls for mobile ->
+    <div class="btn-party"> 
+     PARTIES:
+      <button>CON</button> 
+      <button>LAB</button> 
+      <button>UKIP</button> 
+      <button>LD</button>
+      <button>GRN</button>
+    </div-->
 
     <!-- Chart goes here -->
-    <div id="chart">
-      <svg></svg>
-      <div class="tooltip"></div>      
+    <div id="pollChartContainer" class="pos-r chart-size">
+      <!--div class="pos-a ff-ss">Vote intention, %</div-->
+      <svg id="pollChart"></svg>
+      <div id="tpTextBox" class="tp-text pos-a d-n ff-ss fz-14">
+        <div class="fw-b pt-10"></div>
+        <div></div>
+        <div class="fw-b pb-7"></div> 
+      </div>      
     </div>
 
-
-    <!--script src="//cdn.jsdelivr.net/ramda/0.9.1/ramda.min.js"></script-->
+    <script src="//cdn.jsdelivr.net/ramda/0.9.1/ramda.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="app.js"></script>
   </body>
