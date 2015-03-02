@@ -31,6 +31,8 @@ var parseDate = d3.time.format(dateFormat).parse;
 // SVG:
 // Add the svg
 var svg = d3.select("#pollChart")
+            .attr("width", 600)
+            .attr("height", 300)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -60,8 +62,8 @@ function setChartSize() {
   width = w - margin.left - margin.right;
   height = h - margin.top - margin.bottom;
    
-  p.setAttribute("width", w);
-  p.setAttribute("height", h);
+  //p.setAttribute("width", w);
+  //p.setAttribute("height", h);
 
   // Ranges of the charts
   x = d3.time.scale().range([0, width]);
@@ -101,9 +103,10 @@ function setChartSize() {
   xAxis.tickFormat(xAxisTextFormat);
   
   // resize the chart
-  d3.select("#pollChart")
+  /*d3.select("#pollChart")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
+  */
 }       
 
 function drawSVG() {
