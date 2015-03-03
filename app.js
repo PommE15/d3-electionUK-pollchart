@@ -117,7 +117,7 @@ function drawSVG() {
   drawPathWithLines();
   drawPolygons();
 
-  //drawCircles(gcPoll, 3);
+  drawCircles(gcPoll, 3);
 
   /*/TODO: remove hotfix
     var ele;
@@ -243,11 +243,11 @@ function onRects() {
   gr.on("mouseover", function(d) {
     nl = document.querySelectorAll(".t" + d + ".op-0");
     for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", false); }
-    var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
+    //var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
   })
   .on("mouseout", function(d) {
     for (var i=0; i<nl.length; i++) { d3.select(nl[i]).classed("op-0", true); }
-    var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
+    //var n = document.createTextNode(' '); document.body.appendChild(n); document.body.removeChild(n);
   });
 
   /*/ pan evnt using hammerjs
@@ -537,7 +537,7 @@ d3.json(/*"data.json"*/jsonSrc, function(error, rawData) {
 /* ************/
 
 function forceRedraw() {
-  drawCircles(gcPoll, 3);
+  //drawCircles(gcPoll, 3);
 }
 
 /* Data: Utility functions
